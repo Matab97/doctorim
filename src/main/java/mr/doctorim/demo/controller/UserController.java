@@ -53,7 +53,7 @@ public class UserController {
 
     @PostMapping ("/role/addToUser")
     public ResponseEntity<Boolean> addRoleToUser(@RequestBody RoleToUserForm form){
-        userService.addRoleToUser(form.getUserPhoneNumber(),form.getRole());
+        userService.addRoleToUser(form.getUsername(),form.getRole());
         return ResponseEntity.ok().body(true);
     }
 
@@ -67,10 +67,10 @@ public class UserController {
                 Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
                 JWTVerifier verifier = JWT.require(algorithm).build();
                 DecodedJWT jwt = verifier.verify(refreshToken);
-                String phoneNumber = jwt.getSubject();
-                User user = userService.getUser(phoneNumber);
+                String username = jwt.getSubject();
+                User user = userService.getUser(username);
                 String accessToken = JWT.create()
-                        .withSubject(user.getPhoneNumber())
+                        .withSubject(user.getUsername())
                         .withExpiresAt(new Date(System.currentTimeMillis() +10*60*1000))
                         .withIssuer(request.getRequestURL().toString())
                         .withClaim("roles",user.getRoles().stream().map(role -> role.getName().toString()).collect(Collectors.toList()))

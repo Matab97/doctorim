@@ -40,12 +40,12 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
                     Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
                     JWTVerifier verifier = JWT.require(algorithm).build();
                     DecodedJWT jwt = verifier.verify(token);
-                    String phoneNumber = jwt.getSubject();
+                    String username = jwt.getSubject();
                     String[] roles = jwt.getClaim("roles").asArray(String.class);
                     Collection<SimpleGrantedAuthority> authorities =
                             Arrays.stream(roles).map(role -> new SimpleGrantedAuthority(role)).collect(Collectors.toList()
                             );
-                    UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(phoneNumber,null,authorities);
+                    UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username,null,authorities);
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
                     filterChain.doFilter(request, response);
                 }

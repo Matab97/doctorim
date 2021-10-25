@@ -5,6 +5,6 @@ import mr.doctorim.demo.model.User;
 
 @Data
 public class RoleToUserForm {
-    private String userPhoneNumber;
+    private String username;
     private String role;
 }

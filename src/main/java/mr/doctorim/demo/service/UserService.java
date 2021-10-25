@@ -30,7 +30,11 @@ public class UserService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
 
     public User saveUser(User user) {
-        log.info("saving user {}",user.getName());
+        //if username is null we use the phone number to identify the user
+        if(user.getUsername() == null){
+            user.setUsername(user.getPhoneNumber());
+        }
+        log.info("saving user {}",user.getUsername());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
@@ -40,14 +44,14 @@ public class UserService implements UserDetailsService {
         return roleRepository.save(role);
     }
 
-    public void addRoleToUser(String phoneNumber, String roleName) {
-        User user = getUser(phoneNumber);
+    public void addRoleToUser(String username, String roleName) {
+        User user = getUser(username);
         Role role = roleRepository.findRoleByName(RolesEnum.valueOf(roleName));
         user.getRoles().add(role);
     }
 
-    public User getUser(String phoneNumber) {
-        return userRepository.findUserByPhoneNumber(phoneNumber);
+    public User getUser(String username) {
+        return userRepository.findUserByUsername(username);
     }
 
     public List<User> getUsers(){
@@ -56,19 +60,19 @@ public class UserService implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String phoneNumber) throws UsernameNotFoundException {
-        User user = getUser(phoneNumber);
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        User user = getUser(username);
         if(user ==null){
             log.error("user not found in the database");
             throw new UsernameNotFoundException("user not found in the database");
         }
         else{
-            log.info("loading user {} with phoneNumber",phoneNumber);
+            log.info("loading user {} with username",username);
         }
         Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
         user.getRoles().forEach(role -> authorities.add(new SimpleGrantedAuthority(role.getName().toString())));
         return new org.springframework.security.core.userdetails.User(
-                user.getPhoneNumber(),
+                user.getUsername(),
                 user.getPassword(),
                 authorities);
     }
