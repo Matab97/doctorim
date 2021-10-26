@@ -3,6 +3,7 @@ package mr.doctorim.demo.security;
 import lombok.RequiredArgsConstructor;
 import mr.doctorim.demo.security.filter.CustomAuthenticationFilter;
 import mr.doctorim.demo.security.filter.CustomAuthorizationFilter;
+import mr.doctorim.demo.security.oauth.CustomOAuth2UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -23,6 +24,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final UserDetailsService userDetailsService;
     private final BCryptPasswordEncoder encoder;
+    private final CustomOAuth2UserService oauthUserService;
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -36,10 +38,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         authenticationFilter.setFilterProcessesUrl("/api/login");
         http.csrf().disable();
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-        http.authorizeRequests().antMatchers("/api/login/**","/api/v1/refreshToken/**").permitAll();
-        http.authorizeRequests().antMatchers(HttpMethod.GET,"/api/v1/users/**").hasAuthority("DOCTOR");
-        http.authorizeRequests().antMatchers(HttpMethod.POST,"/api/v1/role/**").hasAuthority("ADMIN");
-        http.authorizeRequests().anyRequest().authenticated();
+        http.authorizeRequests()
+                .antMatchers("/api/login/**","/api/v1/refreshToken/**").permitAll()
+                .antMatchers(HttpMethod.GET,"/api/v1/users/**").hasAuthority("DOCTOR")
+                .antMatchers(HttpMethod.POST,"/api/v1/role/**").hasAuthority("ADMIN")
+                .antMatchers("/", "/login", "/oauth/**").permitAll()
+                .anyRequest().authenticated()
+                .and()
+                .formLogin().permitAll()
+                .and()
+                .oauth2Login()
+                .loginPage("/login")
+                .userInfoEndpoint()
+                .userService(oauthUserService);
         http.addFilter(authenticationFilter);
         http.addFilterBefore(authorizationFilter,UsernamePasswordAuthenticationFilter.class);
     }

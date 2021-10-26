@@ -24,6 +24,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'com.auth0:java-jwt:3.18.1'
 	implementation("org.liquibase:liquibase-core:3.8.2")
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client:2.3.3.RELEASE'
 	runtimeOnly 'com.h2database:h2'
 	compileOnly 'org.projectlombok:lombok'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
