@@ -39,16 +39,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable();
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http.authorizeRequests()
-                .antMatchers("/api/login/**","/api/v1/refreshToken/**").permitAll()
+                .antMatchers("/api/login/**","login/oauth2/code/google","/api/v1/refreshToken/**").permitAll()
                 .antMatchers(HttpMethod.GET,"/api/v1/users/**").hasAuthority("DOCTOR")
                 .antMatchers(HttpMethod.POST,"/api/v1/role/**").hasAuthority("ADMIN")
                 .antMatchers("/", "/login", "/oauth/**").permitAll()
                 .anyRequest().authenticated()
-                .and()
-                .formLogin().permitAll()
+                //.and()
+                //.formLogin().permitAll()
                 .and()
                 .oauth2Login()
-                .loginPage("/login")
+                //.loginPage("/login")
                 .userInfoEndpoint()
                 .userService(oauthUserService);
         http.addFilter(authenticationFilter);
